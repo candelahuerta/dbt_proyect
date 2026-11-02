@@ -12,7 +12,7 @@ with dias as (
 )
 
 select
-    to_number(to_char(fecha, 'YYYYMMDD'))   as sk_fecha,
+    {{ clave_fecha('fecha') }}    as sk_fecha,
     fecha,
     year(fecha)                             as anio,
     quarter(fecha)                          as trimestre,
