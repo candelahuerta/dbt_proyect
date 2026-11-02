@@ -1,0 +1,160 @@
+version: 2
+
+models:
+  - name: stg_tpch__region
+    description: "Regiones geográficas. Carga total."
+    columns:
+      - name: id_region
+        description: "Identificador de la región."
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_tpch__nation
+    description: "Países y la región a la que pertenecen. Carga total."
+    columns:
+      - name: id_nacion
+        description: "Identificador del país."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_region
+        description: "Región a la que pertenece el país."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__region')
+                field: id_region
+
+  - name: stg_tpch__customer
+    description: "Clientes. Carga total."
+    columns:
+      - name: id_cliente
+        description: "Identificador del cliente."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_nacion
+        description: "País del cliente."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__nation')
+                field: id_nacion
+      - name: segmento_mercado
+        description: "Segmento de mercado al que pertenece el cliente."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']
+
+  - name: stg_tpch__supplier
+    description: "Proveedores. Carga total."
+    columns:
+      - name: id_proveedor
+        description: "Identificador del proveedor."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_nacion
+        description: "País del proveedor."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__nation')
+                field: id_nacion
+
+  - name: stg_tpch__part
+    description: "Catálogo de piezas. Carga total."
+    columns:
+      - name: id_pieza
+        description: "Identificador de la pieza."
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_tpch__partsupp
+    description: "Relación pieza-proveedor con stock y coste de suministro. Carga total."
+    columns:
+      - name: id_pieza
+        description: "Pieza suministrada."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__part')
+                field: id_pieza
+      - name: id_proveedor
+        description: "Proveedor que suministra la pieza."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__supplier')
+                field: id_proveedor
+
+  - name: stg_tpch__orders
+    description: "Cabecera de pedidos. Carga incremental por fecha de pedido."
+    columns:
+      - name: id_pedido
+        description: "Identificador del pedido."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_cliente
+        description: "Cliente que realiza el pedido."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__customer')
+                field: id_cliente
+      - name: estado_pedido
+        description: "Estado del pedido: F (completado), O (abierto), P (parcial)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
+      - name: prioridad_pedido
+        description: "Prioridad asignada al pedido."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['1-URGENT', '2-HIGH', '3-MEDIUM', '4-NOT SPECIFIED', '5-LOW']
+      - name: fecha_pedido
+        description: "Fecha del pedido. Se usa como referencia para la carga incremental."
+        data_tests:
+          - not_null
+
+  - name: stg_tpch__lineitem
+    description: "Líneas de pedido. Carga incremental por fecha de envío."
+    columns:
+      - name: id_pedido
+        description: "Pedido al que pertenece la línea."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__orders')
+                field: id_pedido
+      - name: numero_linea
+        description: "Número de la línea dentro del pedido."
+        data_tests:
+          - not_null
+      - name: modo_envio
+        description: "Medio de transporte utilizado."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['AIR', 'FOB', 'MAIL', 'RAIL', 'REG AIR', 'SHIP', 'TRUCK']
+      - name: indicador_devolucion
+        description: "R (devuelta), A (aceptada), N (sin incidencia)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['A', 'N', 'R']
+      - name: fecha_envio
+        description: "Fecha de envío. Se usa como referencia para la carga incremental."
+        data_tests:
+          - not_null

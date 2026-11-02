@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: dim_cliente
+    description: "Dimensión de clientes del modelo en estrella."
+    columns:
+      - name: sk_cliente
+        description: "Clave subrogada del cliente (hash del identificador de origen)."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_cliente
+        description: "Identificador del cliente en el sistema origen."
+        data_tests:
+          - unique
+          - not_null
+      - name: nombre_region
+        data_tests:
+          - not_null
+
+  - name: dim_proveedor
+    description: "Dimensión de proveedores del modelo en estrella."
+    columns:
+      - name: sk_proveedor
+        description: "Clave subrogada del proveedor."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_proveedor
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_producto
+    description: "Dimensión de productos (piezas) con el resumen de sus proveedores."
+    columns:
+      - name: sk_producto
+        description: "Clave subrogada del producto."
+        data_tests:
+          - unique
+          - not_null
+      - name: id_pieza
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_fecha
+    description: "Dimensión de calendario generada de 1992 a 1998. No procede del origen."
+    columns:
+      - name: sk_fecha
+        description: "Clave de la fecha en formato AAAAMMDD."
+        data_tests:
+          - unique
+          - not_null
+      - name: fecha
+        data_tests:
+          - unique
+          - not_null
+      - name: trimestre
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4]
+                quote: false
+
+  - name: fct_ventas
+    description: "Tabla de hechos de ventas. Granularidad: una fila por línea de pedido."
+    columns:
+      - name: sk_venta
+        description: "Clave de la venta (hash de pedido + número de línea)."
+        data_tests:
+          - unique
+          - not_null
+      - name: sk_cliente
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_cliente')
+                field: sk_cliente
+      - name: sk_proveedor
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_proveedor')
+                field: sk_proveedor
+      - name: sk_producto
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_producto')
+                field: sk_producto
+      - name: sk_fecha_pedido
+        description: "Fecha del pedido (rol de dim_fecha)."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fecha')
+                field: sk_fecha
+      - name: sk_fecha_envio
+        description: "Fecha de envío (rol de dim_fecha)."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fecha')
+                field: sk_fecha
+      - name: sk_fecha_recepcion
+        description: "Fecha de recepción (rol de dim_fecha)."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fecha')
+                field: sk_fecha
+      - name: importe_neto
+        description: "Importe tras aplicar el descuento."
+        data_tests:
+          - not_null

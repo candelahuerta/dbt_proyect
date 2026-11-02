@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: int_clientes_enriquecidos
+    description: "Clientes con su nación y región, y clasificación según su saldo."
+    columns:
+      - name: id_cliente
+        data_tests:
+          - unique
+          - not_null
+      - name: nombre_region
+        data_tests:
+          - not_null
+      - name: situacion_saldo
+        description: "Deudor si el saldo es negativo; Solvente en caso contrario."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Deudor', 'Solvente']
+
+  - name: int_proveedores_enriquecidos
+    description: "Proveedores con su nación y región, y clasificación según su saldo."
+    columns:
+      - name: id_proveedor
+        data_tests:
+          - unique
+          - not_null
+      - name: nombre_region
+        data_tests:
+          - not_null
+      - name: situacion_saldo
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Deudor', 'Solvente']
+
+  - name: int_lineas_pedido_enriquecidas
+    description: "Líneas de pedido con datos del pedido, coste de suministro y métricas calculadas (importe neto, margen, días de entrega)."
+    columns:
+      - name: id_pedido
+        data_tests:
+          - not_null
+      - name: id_cliente
+        data_tests:
+          - not_null
+      - name: coste_suministro
+        description: "Coste unitario del proveedor. Si fuera nulo, el join con partsupp habría fallado."
+        data_tests:
+          - not_null
+
+  - name: int_pedidos_agregados
+    description: "Una fila por pedido, con el resumen de sus líneas. Cambio de granularidad."
+    columns:
+      - name: id_pedido
+        data_tests:
+          - unique
+          - not_null
+      - name: numero_lineas
+        data_tests:
+          - not_null
+
+  - name: int_piezas_enriquecidas
+    description: "Una fila por pieza, con el resumen de sus proveedores. Cambio de granularidad."
+    columns:
+      - name: id_pieza
+        data_tests:
+          - unique
+          - not_null
+      - name: numero_proveedores
+        data_tests:
+          - not_null
