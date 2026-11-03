@@ -1,0 +1,22 @@
+unit_tests:
+
+  - name: test_carga_incremental_pedidos
+    description: "Simula una ejecución incremental: solo deben cargarse los pedidos con fecha igual o posterior a la máxima ya cargada."
+    model: stg_tpch__orders
+    overrides:
+      macros:
+        is_incremental: true
+    given:
+      - input: source('tpch', 'orders')
+        rows:
+          - {o_orderkey: 1, o_orderdate: '1998-07-30'}
+          - {o_orderkey: 2, o_orderdate: '1998-08-01'}
+          - {o_orderkey: 3, o_orderdate: '1998-08-02'}
+      - input: this
+        rows:
+          - {id_pedido: 1, fecha_pedido: '1998-07-30'}
+          - {id_pedido: 2, fecha_pedido: '1998-08-01'}
+    expect:
+      rows:
+        - {id_pedido: 2, fecha_pedido: '1998-08-01'}
+        - {id_pedido: 3, fecha_pedido: '1998-08-02'}
