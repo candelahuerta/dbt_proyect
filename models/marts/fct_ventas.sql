@@ -1,6 +1,6 @@
 with lineas as (
     select * from {{ ref('int_lineas_pedido_enriquecidas') }}
-)
+) 
 
 select
     -- Clave de la tabla de hechos
