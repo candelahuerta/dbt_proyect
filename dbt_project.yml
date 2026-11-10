@@ -40,12 +40,16 @@ models:
     staging:
       +schema: staging
       +materialized: table
+      +tags: ['staging']
     intermediate:
       +schema: intermediate
       +materialized: view
+      +tags: ['intermediate']
     marts:
       +schema: business
       +materialized: table
+      +tags: ['business']
     reporting:
       +schema: reporting
       +materialized: view
+      +tags: ['reporting']
