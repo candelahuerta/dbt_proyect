@@ -1,3 +1,5 @@
+   -- Informe de ventas por fabricante y marca para el área de Producto
+
 with ventas as (
     select * from {{ ref('fct_ventas') }}
 ),
