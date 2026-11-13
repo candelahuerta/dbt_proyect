@@ -53,3 +53,11 @@ models:
       +schema: reporting
       +materialized: view
       +tags: ['reporting']
+    elementary:
+      +schema: elementary
+    dbt_project_evaluator:
+      +schema: evaluador
+
+data_tests:
+  dbt_project_evaluator:
+    +severity: warn

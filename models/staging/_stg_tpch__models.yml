@@ -76,6 +76,10 @@ models:
 
   - name: stg_tpch__partsupp
     description: "Relación pieza-proveedor con stock y coste de suministro. Carga total."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['id_pieza', 'id_proveedor']
     columns:
       - name: id_pieza
         description: "Pieza suministrada."
@@ -126,9 +130,22 @@ models:
         description: "Fecha del pedido. Se usa como referencia para la carga incremental."
         data_tests:
           - not_null
+          - fecha_en_rango:
+              arguments:
+                fecha_minima: '1992-01-01'
+                fecha_maxima: '1998-12-31'
 
   - name: stg_tpch__lineitem
     description: "Líneas de pedido. Carga incremental por fecha de envío."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['id_pedido', 'numero_linea']
+      - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          arguments:
+            column_A: fecha_recepcion
+            column_B: fecha_envio
+            or_equal: true
     columns:
       - name: id_pedido
         description: "Pedido al que pertenece la línea."
@@ -142,6 +159,27 @@ models:
         description: "Número de la línea dentro del pedido."
         data_tests:
           - not_null
+      - name: cantidad
+        description: "Unidades vendidas. Regla de negocio: entre 1 y 50."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 50
+      - name: descuento
+        description: "Descuento aplicado. Regla de negocio: entre 0 % y 10 %."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 0.10
+      - name: impuesto
+        description: "Impuesto aplicado. Regla de negocio: entre 0 % y 8 %."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 0.08
       - name: modo_envio
         description: "Medio de transporte utilizado."
         data_tests:
@@ -158,3 +196,14 @@ models:
         description: "Fecha de envío. Se usa como referencia para la carga incremental."
         data_tests:
           - not_null
+          - fecha_en_rango:
+              arguments:
+                fecha_minima: '1992-01-01'
+                fecha_maxima: '1998-12-31'
+      - name: fecha_recepcion
+        description: "Fecha en que el cliente recibe el pedido."
+        data_tests:
+          - fecha_en_rango:
+              arguments:
+                fecha_minima: '1992-01-01'
+                fecha_maxima: '1998-12-31'
