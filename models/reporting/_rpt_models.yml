@@ -3,6 +3,8 @@ version: 2
 models:
   - name: rpt_ventas_mensuales_region
     description: "Ventas y margen por región y mes. Pensado para el área Comercial."
+    config:
+      tags: ['dominio_ventas']
     columns:
       - name: nombre_region
         data_tests:
@@ -31,6 +33,8 @@ models:
 
   - name: rpt_ventas_por_marca
     description: "Ventas, margen y devoluciones por fabricante y marca. Pensado para Producto."
+    config:
+      tags: ['dominio_productos']
     columns:
       - name: marca
         data_tests:

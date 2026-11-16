@@ -3,6 +3,8 @@ version: 2
 models:
   - name: dim_cliente
     description: "Dimensión de clientes del modelo en estrella."
+    config:
+      tags: ['dominio_clientes']
     columns:
       - name: sk_cliente
         description: "Clave subrogada del cliente (hash del identificador de origen)."
@@ -33,6 +35,8 @@ models:
 
   - name: dim_producto
     description: "Dimensión de productos (piezas) con el resumen de sus proveedores."
+    config:
+      tags: ['dominio_productos']
     columns:
       - name: sk_producto
         description: "Clave subrogada del producto."
@@ -46,6 +50,8 @@ models:
 
   - name: dim_fecha
     description: "Dimensión de calendario generada de 1992 a 1998. No procede del origen."
+    config:
+      tags: ['dominio_fechas']
     columns:
       - name: sk_fecha
         description: "Clave de la fecha en formato AAAAMMDD."
@@ -65,6 +71,8 @@ models:
 
   - name: fct_ventas
     description: "Tabla de hechos de ventas. Granularidad: una fila por línea de pedido."
+    config:
+      tags: ['dominio_ventas']
     columns:
       - name: sk_venta
         description: "Clave de la venta (hash de pedido + número de línea)."

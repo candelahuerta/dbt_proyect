@@ -29,6 +29,8 @@ models:
 
   - name: stg_tpch__customer
     description: "Clientes. Carga total."
+    config:
+      tags: ['dominio_clientes']
     columns:
       - name: id_cliente
         description: "Identificador del cliente."
@@ -67,6 +69,8 @@ models:
 
   - name: stg_tpch__part
     description: "Catálogo de piezas. Carga total."
+    config:
+      tags: ['dominio_productos']
     columns:
       - name: id_pieza
         description: "Identificador de la pieza."
@@ -76,6 +80,8 @@ models:
 
   - name: stg_tpch__partsupp
     description: "Relación pieza-proveedor con stock y coste de suministro. Carga total."
+    config:
+      tags: ['dominio_productos']
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -108,6 +114,8 @@ models:
 
   - name: stg_tpch__orders
     description: "Cabecera de pedidos. Carga incremental por fecha de pedido."
+    config:
+      tags: ['dominio_ventas']
     columns:
       - name: id_pedido
         description: "Identificador del pedido."
@@ -137,7 +145,9 @@ models:
       - name: fecha_pedido
         description: "Fecha del pedido. Se usa como referencia para la carga incremental."
         data_tests:
-          - not_null
+          - not_null:
+              config:
+                tags: ['dominio_fechas']
           - fecha_en_rango:
               arguments:
                 fecha_minima: '1992-01-01'
@@ -145,6 +155,8 @@ models:
 
   - name: stg_tpch__lineitem
     description: "Líneas de pedido. Carga incremental por fecha de envío."
+    config:
+      tags: ['dominio_ventas']
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -203,7 +215,9 @@ models:
       - name: fecha_envio
         description: "Fecha de envío. Se usa como referencia para la carga incremental."
         data_tests:
-          - not_null
+          - not_null:
+              config:
+                tags: ['dominio_fechas']
           - fecha_en_rango:
               arguments:
                 fecha_minima: '1992-01-01'

@@ -59,5 +59,16 @@ models:
       +schema: evaluador
 
 data_tests:
+  tpch_dimensional:
+    staging:
+      +tags: ['tests_staging']
+    intermediate:
+      +tags: ['tests_intermediate']
+    marts:
+      +tags: ['tests_business']
+    business:
+      +tags: ['tests_business']
+    reporting:
+      +tags: ['tests_reporting']
   dbt_project_evaluator:
     +severity: warn

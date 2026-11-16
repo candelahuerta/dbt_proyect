@@ -1,0 +1,67 @@
+selectors:
+
+  - name: pruebas_staging
+    description: "Paquete de pruebas de la capa staging."
+    definition:
+      method: tag
+      value: tests_staging
+
+  - name: pruebas_intermediate
+    description: "Paquete de pruebas de la capa intermediate."
+    definition:
+      method: tag
+      value: tests_intermediate
+
+  - name: pruebas_business
+    description: "Paquete de pruebas de la capa business (modelo en estrella)."
+    definition:
+      method: tag
+      value: tests_business
+
+  - name: pruebas_reporting
+    description: "Paquete de pruebas de la capa reporting."
+    definition:
+      method: tag
+      value: tests_reporting
+
+  - name: pruebas_clientes
+    description: "Paquete de pruebas del dominio de clientes, en todas las capas."
+    definition:
+      method: tag
+      value: dominio_clientes
+
+  - name: pruebas_productos
+    description: "Paquete de pruebas del dominio de productos (piezas, stock, costes y ventas por marca), en todas las capas."
+    definition:
+      method: tag
+      value: dominio_productos
+
+  - name: pruebas_ventas
+    description: "Paquete de pruebas del dominio de ventas: pedidos, líneas, tabla de hechos e informe comercial. Comprueba que las cifras de ventas son fiables en todas las capas."
+    definition:
+      method: tag
+      value: dominio_ventas
+
+  - name: pruebas_fechas
+    description: "Paquete de pruebas temporales: calendario, fechas de las cargas incrementales y coherencia entre fechas de pedido, envío y recepción."
+    definition:
+      union:
+        - method: tag
+          value: dominio_fechas
+        - method: test_name
+          value: fecha_en_rango
+        - method: fqn
+          value: assert_fechas_logisticas_coherentes
+
+  - name: pruebas_personalizadas
+    description: "Paquete con las pruebas escritas por el equipo: singulares y genéricas propias."
+    definition:
+      union:
+        - method: test_type
+          value: singular
+        - method: test_name
+          value: fecha_en_rango
+        - method: test_name
+          value: no_negativo
+        - method: test_name
+          value: porcentaje_valido
