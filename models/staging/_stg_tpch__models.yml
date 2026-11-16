@@ -97,6 +97,14 @@ models:
               arguments:
                 to: ref('stg_tpch__supplier')
                 field: id_proveedor
+      - name: cantidad_disponible
+        description: "Stock disponible del proveedor para esa pieza."
+        data_tests:
+          - no_negativo
+      - name: coste_suministro
+        description: "Coste unitario de suministro."
+        data_tests:
+          - no_negativo
 
   - name: stg_tpch__orders
     description: "Cabecera de pedidos. Carga incremental por fecha de pedido."
@@ -207,3 +215,7 @@ models:
               arguments:
                 fecha_minima: '1992-01-01'
                 fecha_maxima: '1998-12-31'
+      - name: precio_bruto
+        description: "Precio de la línea antes de descuento e impuestos."
+        data_tests:
+          - no_negativo
