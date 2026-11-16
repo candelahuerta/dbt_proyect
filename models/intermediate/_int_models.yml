@@ -3,6 +3,8 @@ version: 2
 models:
   - name: int_clientes_enriquecidos
     description: "Clientes con su nación y región, y clasificación según su saldo."
+    config:
+      tags: ['dominio_clientes']
     columns:
       - name: id_cliente
         data_tests:
@@ -36,6 +38,8 @@ models:
 
   - name: int_lineas_pedido_enriquecidas
     description: "Líneas de pedido con datos del pedido, coste de suministro y métricas calculadas (importe neto, margen, días de entrega)."
+    config:
+      tags: ['dominio_ventas']
     columns:
       - name: id_pedido
         data_tests:
@@ -50,6 +54,8 @@ models:
 
   - name: int_pedidos_agregados
     description: "Una fila por pedido, con el resumen de sus líneas. Cambio de granularidad."
+    config:
+      tags: ['dominio_ventas']
     columns:
       - name: id_pedido
         data_tests:
@@ -61,6 +67,8 @@ models:
 
   - name: int_piezas_enriquecidas
     description: "Una fila por pieza, con el resumen de sus proveedores. Cambio de granularidad."
+    config:
+      tags: ['dominio_productos']
     columns:
       - name: id_pieza
         data_tests:
