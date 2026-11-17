@@ -37,26 +37,35 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   tpch_dimensional:
+    +copy_grants: true
     staging:
       +schema: staging
       +materialized: table
       +tags: ['staging']
+      +grants:
+        select: ['ROL_ANALISTA']
     intermediate:
       +schema: intermediate
       +materialized: view
       +tags: ['intermediate']
+      +grants:
+        select: ['ROL_ANALISTA']
     marts:
       +schema: business
       +materialized: table
       +tags: ['business']
+      +grants:
+        select: ['ROL_ANALISTA', 'ROL_NEGOCIO']
     reporting:
       +schema: reporting
       +materialized: view
       +tags: ['reporting']
-    elementary:
-      +schema: elementary
-    dbt_project_evaluator:
-      +schema: evaluador
+      +grants:
+        select: ['ROL_ANALISTA', 'ROL_NEGOCIO']
+  elementary:
+    +schema: elementary
+  dbt_project_evaluator:
+    +schema: evaluador
 
 data_tests:
   tpch_dimensional:
