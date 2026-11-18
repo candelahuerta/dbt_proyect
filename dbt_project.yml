@@ -62,8 +62,6 @@ models:
       +tags: ['reporting']
       +grants:
         select: ['ROL_ANALISTA', 'ROL_NEGOCIO']
-  elementary:
-    +schema: elementary
   dbt_project_evaluator:
     +schema: evaluador
 
