@@ -2,84 +2,195 @@ version: 2
 
 models:
   - name: dim_cliente
-    description: "Dimensión de clientes del modelo en estrella."
+    description: "Dimensión de clientes del modelo en estrella. Una fila por cliente con su estado actual: datos de contacto, segmento, situación del saldo, país y región ya desnormalizados para filtrar sin joins. Tabla con carga total."
     config:
       tags: ['dominio_clientes']
+      meta:
+        tipo_tabla: "dimensión"
+        granularidad: "una fila por cliente"
+        contiene_pii: true
     columns:
       - name: sk_cliente
-        description: "Clave subrogada del cliente (hash del identificador de origen)."
+        description: '{{ doc("sk_cliente") }}'
         data_tests:
           - unique
           - not_null
       - name: id_cliente
-        description: "Identificador del cliente en el sistema origen."
+        description: "Identificador del cliente en el sistema origen (clave natural). Permite rastrear el registro hasta el origen."
         data_tests:
           - unique
           - not_null
+      - name: nombre_cliente
+        description: "Nombre del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: direccion_cliente
+        description: "Dirección postal del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: telefono_cliente
+        description: "Teléfono de contacto del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: segmento_mercado
+        description: "Segmento de mercado al que pertenece el cliente: AUTOMOBILE, BUILDING, FURNITURE, HOUSEHOLD o MACHINERY."
+      - name: saldo_cuenta_cliente
+        description: "Saldo actual de la cuenta del cliente. Puede ser negativo."
+      - name: situacion_saldo
+        description: "Deudor si el saldo es negativo; Solvente en caso contrario."
+      - name: nombre_nacion
+        description: "País del cliente."
       - name: nombre_region
+        description: "Región del cliente."
         data_tests:
           - not_null
 
   - name: dim_proveedor
-    description: "Dimensión de proveedores del modelo en estrella."
+    description: "Dimensión de proveedores del modelo en estrella. Una fila por proveedor con sus datos de contacto, situación del saldo, país y región. Tabla con carga total."
+    config:
+      meta:
+        tipo_tabla: "dimensión"
+        granularidad: "una fila por proveedor"
+        contiene_pii: true
     columns:
       - name: sk_proveedor
-        description: "Clave subrogada del proveedor."
+        description: '{{ doc("sk_proveedor") }}'
         data_tests:
           - unique
           - not_null
       - name: id_proveedor
+        description: "Identificador del proveedor en el sistema origen (clave natural)."
         data_tests:
           - unique
           - not_null
+      - name: nombre_proveedor
+        description: "Nombre del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: direccion_proveedor
+        description: "Dirección postal del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: telefono_proveedor
+        description: "Teléfono de contacto del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_proveedor
+        description: "Saldo actual de la cuenta del proveedor. Puede ser negativo."
+      - name: situacion_saldo
+        description: "Deudor si el saldo es negativo; Solvente en caso contrario."
+      - name: nombre_nacion
+        description: "País del proveedor."
+      - name: nombre_region
+        description: "Región del proveedor."
 
   - name: dim_producto
-    description: "Dimensión de productos (piezas) con el resumen de sus proveedores."
+    description: "Dimensión de productos (piezas) del modelo en estrella. Una fila por pieza con sus datos de catálogo y el resumen de sus proveedores: número de proveedores, stock total y costes. Tabla con carga total."
     config:
       tags: ['dominio_productos']
+      meta:
+        tipo_tabla: "dimensión"
+        granularidad: "una fila por pieza"
     columns:
       - name: sk_producto
-        description: "Clave subrogada del producto."
+        description: '{{ doc("sk_producto") }}'
         data_tests:
           - unique
           - not_null
       - name: id_pieza
+        description: "Identificador de la pieza en el sistema origen (clave natural)."
         data_tests:
           - unique
           - not_null
+      - name: nombre_pieza
+        description: "Nombre descriptivo de la pieza."
+      - name: fabricante
+        description: "Fabricante de la pieza."
+      - name: marca
+        description: "Marca de la pieza."
+      - name: tipo_pieza
+        description: "Tipo de pieza (acabado, material y forma)."
+      - name: tamano_pieza
+        description: "Tamaño de la pieza, de 1 a 50."
+      - name: tipo_envase
+        description: "Tipo de envase en que se suministra."
+      - name: precio_venta_publico
+        description: "Precio de venta al público."
+      - name: numero_proveedores
+        description: "Número de proveedores que suministran la pieza."
+      - name: stock_total
+        description: "Stock total de la pieza sumando todos sus proveedores."
+      - name: coste_suministro_medio
+        description: "Coste medio de suministro entre sus proveedores."
+      - name: coste_suministro_minimo
+        description: "Coste de suministro del proveedor más barato."
+      - name: coste_suministro_maximo
+        description: "Coste de suministro del proveedor más caro."
 
   - name: dim_fecha
-    description: "Dimensión de calendario generada de 1992 a 1998. No procede del origen."
+    description: "Dimensión de calendario con un día por fila, de 1992-01-01 a 1998-12-31 (2.557 días). No procede del origen: se genera en dbt. La tabla de hechos la usa en tres papeles (pedido, envío y recepción): es una dimensión de rol. Tabla con carga total."
     config:
       tags: ['dominio_fechas']
+      meta:
+        tipo_tabla: "dimensión de rol"
+        granularidad: "una fila por día"
+        origen: "generada en dbt"
     columns:
       - name: sk_fecha
-        description: "Clave de la fecha en formato AAAAMMDD."
+        description: '{{ doc("sk_fecha") }}'
         data_tests:
           - unique
           - not_null
       - name: fecha
+        description: "Fecha del día."
         data_tests:
           - unique
           - not_null
+      - name: anio
+        description: "Año."
       - name: trimestre
+        description: "Trimestre del año, de 1 a 4."
         data_tests:
           - accepted_values:
               arguments:
                 values: [1, 2, 3, 4]
                 quote: false
+      - name: nombre_trimestre
+        description: "Trimestre en texto: T1, T2, T3 o T4."
+      - name: mes
+        description: "Mes del año, de 1 a 12."
+      - name: nombre_mes
+        description: "Nombre del mes en castellano."
+      - name: dia_mes
+        description: "Día del mes, de 1 a 31."
+      - name: dia_semana
+        description: "Día de la semana según el estándar ISO: 1 es lunes y 7 es domingo."
+      - name: nombre_dia
+        description: "Nombre del día de la semana en castellano."
+      - name: es_fin_de_semana
+        description: "Verdadero si el día es sábado o domingo."
 
   - name: fct_ventas
-    description: "Tabla de hechos de ventas. Granularidad: una fila por línea de pedido."
+    description: "Tabla de hechos de ventas, centro del modelo en estrella. Granularidad: una fila por línea de pedido (6.001.215 filas). Contiene las claves hacia las dimensiones, las dimensiones degeneradas del pedido y las medidas de negocio. Tabla con carga total."
     config:
       tags: ['dominio_ventas']
+      meta:
+        tipo_tabla: "hechos"
+        granularidad: "una fila por línea de pedido"
     columns:
       - name: sk_venta
-        description: "Clave de la venta (hash de pedido + número de línea)."
+        description: "Clave de la venta: hash MD5 de pedido + número de línea, generado con la macro generar_clave_subrogada. Clave primaria de la tabla de hechos."
         data_tests:
           - unique
           - not_null
       - name: sk_cliente
+        description: '{{ doc("sk_cliente") }}'
         data_tests:
           - not_null
           - relationships:
@@ -87,6 +198,7 @@ models:
                 to: ref('dim_cliente')
                 field: sk_cliente
       - name: sk_proveedor
+        description: '{{ doc("sk_proveedor") }}'
         data_tests:
           - not_null
           - relationships:
@@ -94,6 +206,7 @@ models:
                 to: ref('dim_proveedor')
                 field: sk_proveedor
       - name: sk_producto
+        description: '{{ doc("sk_producto") }}'
         data_tests:
           - not_null
           - relationships:
@@ -101,7 +214,7 @@ models:
                 to: ref('dim_producto')
                 field: sk_producto
       - name: sk_fecha_pedido
-        description: "Fecha del pedido (rol de dim_fecha)."
+        description: 'Fecha del pedido (rol de dim_fecha). {{ doc("sk_fecha") }}'
         data_tests:
           - not_null
           - relationships:
@@ -109,7 +222,7 @@ models:
                 to: ref('dim_fecha')
                 field: sk_fecha
       - name: sk_fecha_envio
-        description: "Fecha de envío (rol de dim_fecha)."
+        description: 'Fecha de envío (rol de dim_fecha). {{ doc("sk_fecha") }}'
         data_tests:
           - not_null
           - relationships:
@@ -117,41 +230,102 @@ models:
                 to: ref('dim_fecha')
                 field: sk_fecha
       - name: sk_fecha_recepcion
-        description: "Fecha de recepción (rol de dim_fecha)."
+        description: 'Fecha de recepción (rol de dim_fecha). {{ doc("sk_fecha") }}'
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_fecha')
                 field: sk_fecha
+      - name: id_pedido
+        description: "Número del pedido. Dimensión degenerada: atributo del pedido que no justifica una dimensión propia."
+      - name: numero_linea
+        description: "Número de la línea dentro del pedido. Dimensión degenerada."
+      - name: estado_pedido
+        description: "Estado del pedido: F (completado), O (abierto), P (parcial). Dimensión degenerada."
+      - name: prioridad_pedido
+        description: "Prioridad del pedido. Dimensión degenerada."
+      - name: modo_envio
+        description: "Medio de transporte utilizado. Dimensión degenerada."
+      - name: indicador_devolucion
+        description: "R (devuelta), A (aceptada), N (sin incidencia). Dimensión degenerada."
+      - name: estado_linea
+        description: "Estado de la línea: F (cerrada) u O (abierta). Dimensión degenerada."
+      - name: cantidad
+        description: "Medida: unidades vendidas en la línea. Aditiva."
+      - name: precio_bruto
+        description: "Medida: precio de la línea antes de descuento e impuestos. Aditiva."
+      - name: descuento
+        description: "Descuento aplicado, en tanto por uno. No aditivo: se promedia, no se suma."
+      - name: impuesto
+        description: "Impuesto aplicado, en tanto por uno. No aditivo: se promedia, no se suma."
       - name: importe_neto
-        description: "Importe tras aplicar el descuento."
+        description: '{{ doc("importe_neto") }}'
         data_tests:
           - not_null
-          
+      - name: importe_con_impuestos
+        description: "Medida: importe neto más impuestos. Aditiva."
+      - name: coste_total
+        description: "Medida: coste para la empresa de las piezas de la línea (cantidad × coste de suministro). Aditiva."
+      - name: margen
+        description: '{{ doc("margen") }}'
+      - name: dias_hasta_envio
+        description: "Días entre el pedido y el envío. Se promedia para medir la eficiencia logística."
+      - name: dias_de_transito
+        description: "Días entre el envío y la recepción. Se promedia para medir la eficiencia logística."
+      - name: entregado_con_retraso
+        description: "Verdadero si la línea llegó después de la fecha comprometida. Se cuenta para calcular el porcentaje de retrasos."
+
   - name: dim_cliente_historico
-    description: "Dimensión histórica de clientes (SCD tipo 2), construida a partir del snapshot. Una fila por versión de cada cliente, con su periodo de validez. Permite analizar las ventas con los atributos que tenía el cliente en el momento de la compra."
+    description: "Dimensión histórica de clientes (SCD tipo 2), construida a partir del snapshot snp_clientes. Una fila por versión de cada cliente, con su periodo de validez. Permite analizar las ventas con los atributos que tenía el cliente en el momento de la compra."
     config:
       tags: ['dominio_clientes']
+      meta:
+        tipo_tabla: "dimensión histórica (SCD tipo 2)"
+        granularidad: "una fila por versión de cada cliente"
+        contiene_pii: true
     columns:
       - name: sk_cliente_version
-        description: "Clave única de cada versión del cliente."
+        description: "Clave única de cada versión del cliente: hash de id_cliente + inicio de validez en el snapshot."
         data_tests:
           - unique
           - not_null
       - name: sk_cliente
-        description: "Clave del cliente, común a todas sus versiones. Se cruza con fct_ventas."
+        description: "Clave del cliente, común a todas sus versiones. Se cruza con fct_ventas junto con el periodo de validez."
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_cliente')
                 field: sk_cliente
+      - name: id_cliente
+        description: "Identificador del cliente en el sistema origen."
+      - name: nombre_cliente
+        description: "Nombre del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: direccion_cliente
+        description: "Dirección del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: telefono_cliente
+        description: "Teléfono del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: segmento_mercado
+        description: "Segmento de mercado del cliente en esa versión."
+      - name: numero_version
+        description: "Número de orden de la versión: 1 es la más antigua."
       - name: valido_desde
-        description: "Inicio de validez de la versión. La primera versión es válida desde 1900."
+        description: "Inicio de validez de la versión. La primera versión es válida desde 1900 para poder cruzarla con ventas anteriores al primer snapshot."
         data_tests:
           - not_null
       - name: valido_hasta
         description: "Fin de validez de la versión. La versión actual es válida hasta 9999-12-31."
         data_tests:
           - not_null
+      - name: es_version_actual
+        description: "Verdadero en la versión vigente hoy."

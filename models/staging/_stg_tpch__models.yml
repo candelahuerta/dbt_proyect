@@ -2,93 +2,178 @@ version: 2
 
 models:
   - name: stg_tpch__region
-    description: "Regiones geográficas. Carga total."
+    description: "Copia limpia de TPCH_SF1.REGION: las 5 regiones geográficas en las que opera la empresa. Solo renombra columnas. Carga total."
+    config:
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION"
+        tipo_carga: "total"
     columns:
       - name: id_region
-        description: "Identificador de la región."
+        description: "Identificador de la región en el sistema origen (R_REGIONKEY)."
         data_tests:
           - unique
           - not_null
+      - name: nombre_region
+        description: "Nombre de la región: AFRICA, AMERICA, ASIA, EUROPE o MIDDLE EAST."
+      - name: comentario_region
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__nation
-    description: "Países y la región a la que pertenecen. Carga total."
+    description: "Copia limpia de TPCH_SF1.NATION: los 25 países y la región a la que pertenece cada uno. Carga total."
+    config:
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.NATION"
+        tipo_carga: "total"
     columns:
       - name: id_nacion
-        description: "Identificador del país."
+        description: "Identificador del país en el sistema origen (N_NATIONKEY)."
         data_tests:
           - unique
           - not_null
+      - name: nombre_nacion
+        description: "Nombre del país."
       - name: id_region
-        description: "Región a la que pertenece el país."
+        description: "Región a la que pertenece el país. Clave foránea hacia stg_tpch__region."
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('stg_tpch__region')
                 field: id_region
+      - name: comentario_nacion
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__customer
-    description: "Clientes. Carga total."
+    description: "Copia limpia de TPCH_SF1.CUSTOMER: clientes de la empresa. Contiene datos personales (nombre, dirección y teléfono). Carga total."
     config:
       tags: ['dominio_clientes']
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER"
+        tipo_carga: "total"
+        contiene_pii: true
     columns:
       - name: id_cliente
-        description: "Identificador del cliente."
+        description: "Identificador del cliente en el sistema origen (C_CUSTKEY). Clave natural del cliente."
         data_tests:
           - unique
           - not_null
+      - name: nombre_cliente
+        description: "Nombre del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: direccion_cliente
+        description: "Dirección postal del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
       - name: id_nacion
-        description: "País del cliente."
+        description: "País del cliente. Clave foránea hacia stg_tpch__nation."
         data_tests:
           - relationships:
               arguments:
                 to: ref('stg_tpch__nation')
                 field: id_nacion
+      - name: telefono_cliente
+        description: "Teléfono de contacto del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_cliente
+        description: "Saldo de la cuenta del cliente. Puede ser negativo si el cliente debe dinero. Cambia con frecuencia, por eso no se vigila en el snapshot."
       - name: segmento_mercado
         description: "Segmento de mercado al que pertenece el cliente."
         data_tests:
           - accepted_values:
               arguments:
                 values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']
+      - name: comentario_cliente
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__supplier
-    description: "Proveedores. Carga total."
+    description: "Copia limpia de TPCH_SF1.SUPPLIER: proveedores que suministran las piezas. Contiene datos de contacto (nombre, dirección y teléfono). Carga total."
+    config:
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.SUPPLIER"
+        tipo_carga: "total"
+        contiene_pii: true
     columns:
       - name: id_proveedor
-        description: "Identificador del proveedor."
+        description: "Identificador del proveedor en el sistema origen (S_SUPPKEY). Clave natural del proveedor."
         data_tests:
           - unique
           - not_null
+      - name: nombre_proveedor
+        description: "Nombre del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: direccion_proveedor
+        description: "Dirección postal del proveedor."
+        config:
+          meta:
+            pii: true
       - name: id_nacion
-        description: "País del proveedor."
+        description: "País del proveedor. Clave foránea hacia stg_tpch__nation."
         data_tests:
           - relationships:
               arguments:
                 to: ref('stg_tpch__nation')
                 field: id_nacion
+      - name: telefono_proveedor
+        description: "Teléfono de contacto del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_proveedor
+        description: "Saldo de la cuenta del proveedor. Puede ser negativo."
+      - name: comentario_proveedor
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__part
-    description: "Catálogo de piezas. Carga total."
+    description: "Copia limpia de TPCH_SF1.PART: catálogo de piezas (productos) que vende la empresa. Carga total."
     config:
       tags: ['dominio_productos']
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.PART"
+        tipo_carga: "total"
     columns:
       - name: id_pieza
-        description: "Identificador de la pieza."
+        description: "Identificador de la pieza en el sistema origen (P_PARTKEY). Clave natural del producto."
         data_tests:
           - unique
           - not_null
+      - name: nombre_pieza
+        description: "Nombre descriptivo de la pieza."
+      - name: fabricante
+        description: "Fabricante de la pieza (Manufacturer#1 a #5)."
+      - name: marca
+        description: "Marca de la pieza (Brand#11 a #55). Cada fabricante tiene 5 marcas."
+      - name: tipo_pieza
+        description: "Tipo de pieza, combinación de acabado, material y forma (por ejemplo, PROMO BURNISHED COPPER)."
+      - name: tamano_pieza
+        description: "Tamaño de la pieza, de 1 a 50."
+      - name: tipo_envase
+        description: "Tipo de envase en que se suministra la pieza (por ejemplo, SM BOX o LG CASE)."
+      - name: precio_venta_publico
+        description: "Precio de venta al público de la pieza."
+      - name: comentario_pieza
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__partsupp
-    description: "Relación pieza-proveedor con stock y coste de suministro. Carga total."
+    description: "Copia limpia de TPCH_SF1.PARTSUPP: qué proveedores suministran cada pieza, con su stock y su coste. Clave compuesta pieza + proveedor. Carga total."
     config:
       tags: ['dominio_productos']
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.PARTSUPP"
+        tipo_carga: "total"
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: ['id_pieza', 'id_proveedor']
     columns:
       - name: id_pieza
-        description: "Pieza suministrada."
+        description: "Pieza suministrada. Clave foránea hacia stg_tpch__part."
         data_tests:
           - not_null
           - relationships:
@@ -96,7 +181,7 @@ models:
                 to: ref('stg_tpch__part')
                 field: id_pieza
       - name: id_proveedor
-        description: "Proveedor que suministra la pieza."
+        description: "Proveedor que suministra la pieza. Clave foránea hacia stg_tpch__supplier."
         data_tests:
           - not_null
           - relationships:
@@ -104,26 +189,32 @@ models:
                 to: ref('stg_tpch__supplier')
                 field: id_proveedor
       - name: cantidad_disponible
-        description: "Stock disponible del proveedor para esa pieza."
+        description: "Stock disponible del proveedor para esa pieza, en unidades."
         data_tests:
           - no_negativo
       - name: coste_suministro
-        description: "Coste unitario de suministro."
+        description: "Coste unitario que paga la empresa al proveedor por la pieza. Se usa para calcular el coste total y el margen."
         data_tests:
           - no_negativo
+      - name: comentario_pieza_proveedor
+        description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__orders
-    description: "Cabecera de pedidos. Carga incremental por fecha de pedido."
+    description: "Copia limpia de TPCH_SF1.ORDERS: cabecera de los pedidos (cliente, fecha, estado e importe total). Carga incremental por fecha de pedido con estrategia merge."
     config:
       tags: ['dominio_ventas']
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS"
+        tipo_carga: "incremental"
+        columna_incremental: "fecha_pedido"
     columns:
       - name: id_pedido
-        description: "Identificador del pedido."
+        description: "Identificador del pedido en el sistema origen (O_ORDERKEY). Clave única del incremental."
         data_tests:
           - unique
           - not_null
       - name: id_cliente
-        description: "Cliente que realiza el pedido."
+        description: "Cliente que realiza el pedido. Clave foránea hacia stg_tpch__customer."
         data_tests:
           - not_null
           - relationships:
@@ -136,12 +227,8 @@ models:
           - accepted_values:
               arguments:
                 values: ['F', 'O', 'P']
-      - name: prioridad_pedido
-        description: "Prioridad asignada al pedido."
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ['1-URGENT', '2-HIGH', '3-MEDIUM', '4-NOT SPECIFIED', '5-LOW']
+      - name: precio_total_pedido
+        description: "Importe total del pedido según el sistema origen."
       - name: fecha_pedido
         description: "Fecha del pedido. Se usa como referencia para la carga incremental."
         data_tests:
@@ -152,11 +239,29 @@ models:
               arguments:
                 fecha_minima: '1992-01-01'
                 fecha_maxima: '1998-12-31'
+      - name: prioridad_pedido
+        description: "Prioridad asignada al pedido."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['1-URGENT', '2-HIGH', '3-MEDIUM', '4-NOT SPECIFIED', '5-LOW']
+      - name: empleado
+        description: "Código del empleado que gestionó el pedido (por ejemplo, Clerk#000000951)."
+      - name: prioridad_envio
+        description: "Prioridad de envío del pedido."
+      - name: comentario_pedido
+        description: "Comentario de texto libre del sistema origen."
+      - name: fecha_carga
+        description: '{{ doc("fecha_carga") }}'
 
   - name: stg_tpch__lineitem
-    description: "Líneas de pedido. Carga incremental por fecha de envío."
+    description: "Copia limpia de TPCH_SF1.LINEITEM: líneas de cada pedido (pieza, proveedor, cantidad, precio, descuento y fechas logísticas). Es la tabla más grande del origen. Carga incremental por fecha de envío con estrategia merge."
     config:
       tags: ['dominio_ventas']
+      meta:
+        tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM"
+        tipo_carga: "incremental"
+        columna_incremental: "fecha_envio"
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -168,7 +273,7 @@ models:
             or_equal: true
     columns:
       - name: id_pedido
-        description: "Pedido al que pertenece la línea."
+        description: "Pedido al que pertenece la línea. Forma la clave compuesta junto con numero_linea."
         data_tests:
           - not_null
           - relationships:
@@ -179,6 +284,10 @@ models:
         description: "Número de la línea dentro del pedido."
         data_tests:
           - not_null
+      - name: id_pieza
+        description: "Pieza vendida en la línea."
+      - name: id_proveedor
+        description: "Proveedor que suministra la pieza de esta línea."
       - name: cantidad
         description: "Unidades vendidas. Regla de negocio: entre 1 y 50."
         data_tests:
@@ -186,32 +295,32 @@ models:
               arguments:
                 min_value: 1
                 max_value: 50
+      - name: precio_bruto
+        description: "Precio de la línea antes de descuento e impuestos."
+        data_tests:
+          - no_negativo
       - name: descuento
-        description: "Descuento aplicado. Regla de negocio: entre 0 % y 10 %."
+        description: "Descuento aplicado, en tanto por uno. Regla de negocio: entre 0 % y 10 %."
         data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
                 max_value: 0.10
       - name: impuesto
-        description: "Impuesto aplicado. Regla de negocio: entre 0 % y 8 %."
+        description: "Impuesto aplicado, en tanto por uno. Regla de negocio: entre 0 % y 8 %."
         data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
                 max_value: 0.08
-      - name: modo_envio
-        description: "Medio de transporte utilizado."
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ['AIR', 'FOB', 'MAIL', 'RAIL', 'REG AIR', 'SHIP', 'TRUCK']
       - name: indicador_devolucion
         description: "R (devuelta), A (aceptada), N (sin incidencia)."
         data_tests:
           - accepted_values:
               arguments:
                 values: ['A', 'N', 'R']
+      - name: estado_linea
+        description: "Estado de la línea: F (cerrada) u O (abierta)."
       - name: fecha_envio
         description: "Fecha de envío. Se usa como referencia para la carga incremental."
         data_tests:
@@ -222,6 +331,8 @@ models:
               arguments:
                 fecha_minima: '1992-01-01'
                 fecha_maxima: '1998-12-31'
+      - name: fecha_compromiso
+        description: "Fecha de entrega comprometida con el cliente. Se compara con la de recepción para saber si hubo retraso."
       - name: fecha_recepcion
         description: "Fecha en que el cliente recibe el pedido."
         data_tests:
@@ -229,7 +340,15 @@ models:
               arguments:
                 fecha_minima: '1992-01-01'
                 fecha_maxima: '1998-12-31'
-      - name: precio_bruto
-        description: "Precio de la línea antes de descuento e impuestos."
+      - name: instrucciones_envio
+        description: "Instrucciones de entrega (por ejemplo, DELIVER IN PERSON)."
+      - name: modo_envio
+        description: "Medio de transporte utilizado."
         data_tests:
-          - no_negativo
+          - accepted_values:
+              arguments:
+                values: ['AIR', 'FOB', 'MAIL', 'RAIL', 'REG AIR', 'SHIP', 'TRUCK']
+      - name: comentario_linea
+        description: "Comentario de texto libre del sistema origen."
+      - name: fecha_carga
+        description: '{{ doc("fecha_carga") }}'
