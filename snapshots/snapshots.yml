@@ -1,0 +1,51 @@
+snapshots:
+
+  - name: snp_clientes
+    description: "Historial de cambios de los clientes (SCD tipo 2). Guarda cada versión de los atributos que pueden cambiar con el tiempo."
+    relation: ref('stg_tpch__customer')
+    config:
+      schema: snapshots
+      unique_key: id_cliente
+      strategy: check
+      check_cols:
+        - nombre_cliente
+        - direccion_cliente
+        - telefono_cliente
+        - segmento_mercado
+        - saldo_cuenta_cliente
+      tags: ['snapshots']
+      grants:
+        select: ['ROL_ANALISTA']
+
+  - name: snp_productos
+    description: "Historial de cambios del catálogo de productos (SCD tipo 2): precio, marca, tipo, tamaño y envase."
+    relation: ref('stg_tpch__part')
+    config:
+      schema: snapshots
+      unique_key: id_pieza
+      strategy: check
+      check_cols:
+        - nombre_pieza
+        - marca
+        - tipo_pieza
+        - tamano_pieza
+        - tipo_envase
+        - precio_venta_publico
+      tags: ['snapshots']
+      grants:
+        select: ['ROL_ANALISTA']
+
+  - name: snp_proveedores
+    description: "Historial de cambios de los proveedores (SCD tipo 2): nombre, dirección y teléfono."
+    relation: ref('stg_tpch__supplier')
+    config:
+      schema: snapshots
+      unique_key: id_proveedor
+      strategy: check
+      check_cols:
+        - nombre_proveedor
+        - direccion_proveedor
+        - telefono_proveedor
+      tags: ['snapshots']
+      grants:
+        select: ['ROL_ANALISTA']

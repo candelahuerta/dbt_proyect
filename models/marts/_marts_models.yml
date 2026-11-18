@@ -128,3 +128,30 @@ models:
         description: "Importe tras aplicar el descuento."
         data_tests:
           - not_null
+          
+  - name: dim_cliente_historico
+    description: "Dimensión histórica de clientes (SCD tipo 2), construida a partir del snapshot. Una fila por versión de cada cliente, con su periodo de validez. Permite analizar las ventas con los atributos que tenía el cliente en el momento de la compra."
+    config:
+      tags: ['dominio_clientes']
+    columns:
+      - name: sk_cliente_version
+        description: "Clave única de cada versión del cliente."
+        data_tests:
+          - unique
+          - not_null
+      - name: sk_cliente
+        description: "Clave del cliente, común a todas sus versiones. Se cruza con fct_ventas."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_cliente')
+                field: sk_cliente
+      - name: valido_desde
+        description: "Inicio de validez de la versión. La primera versión es válida desde 1900."
+        data_tests:
+          - not_null
+      - name: valido_hasta
+        description: "Fin de validez de la versión. La versión actual es válida hasta 9999-12-31."
+        data_tests:
+          - not_null
