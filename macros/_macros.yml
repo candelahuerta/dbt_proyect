@@ -1,0 +1,29 @@
+version: 2
+
+macros:
+  - name: generar_clave_subrogada
+    description: '{{ doc("macro_generar_clave_subrogada") }}'
+    arguments:
+      - name: columnas
+        type: list
+        description: "Lista de nombres de columna a partir de los que se genera la clave, por ejemplo ['id_pedido', 'numero_linea']."
+
+  - name: clave_fecha
+    description: '{{ doc("macro_clave_fecha") }}'
+    arguments:
+      - name: columna
+        type: string
+        description: "Nombre de la columna de fecha que se convierte a AAAAMMDD."
+
+  - name: calcular_porcentaje
+    description: '{{ doc("macro_calcular_porcentaje") }}'
+    arguments:
+      - name: numerador
+        type: string
+        description: "Expresión SQL del numerador, por ejemplo 'sum(ventas.margen)'."
+      - name: denominador
+        type: string
+        description: "Expresión SQL del denominador. Si vale cero, el resultado es nulo en lugar de un error."
+      - name: decimales
+        type: integer
+        description: "Número de decimales del resultado. Opcional; por defecto, 2."
