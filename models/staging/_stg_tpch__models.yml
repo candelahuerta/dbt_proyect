@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_tpch__region
-    description: "Copia limpia de TPCH_SF1.REGION: las 5 regiones geográficas en las que opera la empresa. Solo renombra columnas. Carga total."
+    description: '{{ doc("stg_tpch__region") }}'
     config:
       meta:
         tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION"
@@ -19,7 +19,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__nation
-    description: "Copia limpia de TPCH_SF1.NATION: los 25 países y la región a la que pertenece cada uno. Carga total."
+    description: '{{ doc("stg_tpch__nation") }}'
     config:
       meta:
         tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.NATION"
@@ -44,7 +44,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__customer
-    description: "Copia limpia de TPCH_SF1.CUSTOMER: clientes de la empresa. Contiene datos personales (nombre, dirección y teléfono). Carga total."
+    description: '{{ doc("stg_tpch__customer") }}'
     config:
       tags: ['dominio_clientes']
       meta:
@@ -91,7 +91,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__supplier
-    description: "Copia limpia de TPCH_SF1.SUPPLIER: proveedores que suministran las piezas. Contiene datos de contacto (nombre, dirección y teléfono). Carga total."
+    description: '{{ doc("stg_tpch__supplier") }}'
     config:
       meta:
         tabla_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.SUPPLIER"
@@ -131,7 +131,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__part
-    description: "Copia limpia de TPCH_SF1.PART: catálogo de piezas (productos) que vende la empresa. Carga total."
+    description: '{{ doc("stg_tpch__part") }}'
     config:
       tags: ['dominio_productos']
       meta:
@@ -161,7 +161,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__partsupp
-    description: "Copia limpia de TPCH_SF1.PARTSUPP: qué proveedores suministran cada pieza, con su stock y su coste. Clave compuesta pieza + proveedor. Carga total."
+    description: '{{ doc("stg_tpch__partsupp") }}'
     config:
       tags: ['dominio_productos']
       meta:
@@ -200,7 +200,7 @@ models:
         description: "Comentario de texto libre del sistema origen."
 
   - name: stg_tpch__orders
-    description: "Copia limpia de TPCH_SF1.ORDERS: cabecera de los pedidos (cliente, fecha, estado e importe total). Carga incremental por fecha de pedido con estrategia merge."
+    description: '{{ doc("stg_tpch__orders") }}'
     config:
       tags: ['dominio_ventas']
       meta:
@@ -255,7 +255,7 @@ models:
         description: '{{ doc("fecha_carga") }}'
 
   - name: stg_tpch__lineitem
-    description: "Copia limpia de TPCH_SF1.LINEITEM: líneas de cada pedido (pieza, proveedor, cantidad, precio, descuento y fechas logísticas). Es la tabla más grande del origen. Carga incremental por fecha de envío con estrategia merge."
+    description: '{{ doc("stg_tpch__lineitem") }}'
     config:
       tags: ['dominio_ventas']
       meta:
