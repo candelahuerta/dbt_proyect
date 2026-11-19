@@ -1,7 +1,7 @@
 snapshots:
 
   - name: snp_clientes
-    description: "Historial de cambios de los clientes (SCD tipo 2). Guarda cada versión de los atributos que pueden cambiar con el tiempo."
+    description: "Historial de cambios de los clientes (SCD tipo 2). Guarda cada versión de los atributos que pueden cambiar con el tiempo. No vigila el saldo, porque cambia a diario y no es una dimensión de variación lenta."
     relation: ref('stg_tpch__customer')
     config:
       schema: snapshots
@@ -12,13 +12,54 @@ snapshots:
         - direccion_cliente
         - telefono_cliente
         - segmento_mercado
-        - saldo_cuenta_cliente
       tags: ['snapshots']
       grants:
         select: ['ROL_ANALISTA']
+      meta:
+        tipo_tabla: "snapshot (SCD tipo 2)"
+        contiene_pii: true
+    columns:
+      - name: id_cliente
+        description: "Identificador del cliente en el sistema origen."
+        data_tests:
+          - not_null
+      - name: nombre_cliente
+        description: "Nombre del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: direccion_cliente
+        description: "Dirección del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: id_nacion
+        description: "País del cliente en esa versión."
+      - name: telefono_cliente
+        description: "Teléfono del cliente en esa versión. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_cliente
+        description: "Saldo del cliente cuando se guardó la versión. No se vigila: sus cambios no generan versiones nuevas."
+      - name: segmento_mercado
+        description: "Segmento de mercado del cliente en esa versión."
+      - name: comentario_cliente
+        description: "Comentario de texto libre."
+      - name: dbt_scd_id
+        description: "Identificador único de cada versión, generado por dbt."
+        data_tests:
+          - unique
+          - not_null
+      - name: dbt_updated_at
+        description: "Momento en que dbt registró la versión."
+      - name: dbt_valid_from
+        description: "Inicio de validez de la versión."
+      - name: dbt_valid_to
+        description: "Fin de validez de la versión. Vacío en la versión actual."
 
   - name: snp_productos
-    description: "Historial de cambios del catálogo de productos (SCD tipo 2): precio, marca, tipo, tamaño y envase."
+    description: "Historial de cambios del catálogo de productos (SCD tipo 2): nombre, precio, marca, tipo, tamaño y envase."
     relation: ref('stg_tpch__part')
     config:
       schema: snapshots
@@ -34,9 +75,43 @@ snapshots:
       tags: ['snapshots']
       grants:
         select: ['ROL_ANALISTA']
+      meta:
+        tipo_tabla: "snapshot (SCD tipo 2)"
+    columns:
+      - name: id_pieza
+        description: "Identificador de la pieza en el sistema origen."
+        data_tests:
+          - not_null
+      - name: nombre_pieza
+        description: "Nombre de la pieza en esa versión."
+      - name: fabricante
+        description: "Fabricante de la pieza en esa versión."
+      - name: marca
+        description: "Marca de la pieza en esa versión."
+      - name: tipo_pieza
+        description: "Tipo de pieza en esa versión."
+      - name: tamano_pieza
+        description: "Tamaño de la pieza en esa versión."
+      - name: tipo_envase
+        description: "Tipo de envase en esa versión."
+      - name: precio_venta_publico
+        description: "Precio de venta al público en esa versión."
+      - name: comentario_pieza
+        description: "Comentario de texto libre."
+      - name: dbt_scd_id
+        description: "Identificador único de cada versión, generado por dbt."
+        data_tests:
+          - unique
+          - not_null
+      - name: dbt_updated_at
+        description: "Momento en que dbt registró la versión."
+      - name: dbt_valid_from
+        description: "Inicio de validez de la versión."
+      - name: dbt_valid_to
+        description: "Fin de validez de la versión. Vacío en la versión actual."
 
   - name: snp_proveedores
-    description: "Historial de cambios de los proveedores (SCD tipo 2): nombre, dirección y teléfono."
+    description: "Historial de cambios de los proveedores (SCD tipo 2): nombre, dirección y teléfono. No vigila el saldo, porque cambia a diario."
     relation: ref('stg_tpch__supplier')
     config:
       schema: snapshots
@@ -49,3 +124,43 @@ snapshots:
       tags: ['snapshots']
       grants:
         select: ['ROL_ANALISTA']
+      meta:
+        tipo_tabla: "snapshot (SCD tipo 2)"
+        contiene_pii: true
+    columns:
+      - name: id_proveedor
+        description: "Identificador del proveedor en el sistema origen."
+        data_tests:
+          - not_null
+      - name: nombre_proveedor
+        description: "Nombre del proveedor en esa versión."
+        config:
+          meta:
+            pii: true
+      - name: direccion_proveedor
+        description: "Dirección del proveedor en esa versión."
+        config:
+          meta:
+            pii: true
+      - name: id_nacion
+        description: "País del proveedor en esa versión."
+      - name: telefono_proveedor
+        description: "Teléfono del proveedor en esa versión."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_proveedor
+        description: "Saldo del proveedor cuando se guardó la versión. No se vigila."
+      - name: comentario_proveedor
+        description: "Comentario de texto libre."
+      - name: dbt_scd_id
+        description: "Identificador único de cada versión, generado por dbt."
+        data_tests:
+          - unique
+          - not_null
+      - name: dbt_updated_at
+        description: "Momento en que dbt registró la versión."
+      - name: dbt_valid_from
+        description: "Inicio de validez de la versión."
+      - name: dbt_valid_to
+        description: "Fin de validez de la versión. Vacío en la versión actual."
