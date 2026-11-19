@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: dim_cliente
-    description: "Dimensión de clientes del modelo en estrella. Una fila por cliente con su estado actual: datos de contacto, segmento, situación del saldo, país y región ya desnormalizados para filtrar sin joins. Tabla con carga total."
+    description: '{{ doc("dim_cliente") }}'
     config:
       tags: ['dominio_clientes']
       meta:
@@ -49,7 +49,7 @@ models:
           - not_null
 
   - name: dim_proveedor
-    description: "Dimensión de proveedores del modelo en estrella. Una fila por proveedor con sus datos de contacto, situación del saldo, país y región. Tabla con carga total."
+    description: '{{ doc("dim_proveedor") }}'
     config:
       meta:
         tipo_tabla: "dimensión"
@@ -91,7 +91,7 @@ models:
         description: "Región del proveedor."
 
   - name: dim_producto
-    description: "Dimensión de productos (piezas) del modelo en estrella. Una fila por pieza con sus datos de catálogo y el resumen de sus proveedores: número de proveedores, stock total y costes. Tabla con carga total."
+    description: '{{ doc("dim_producto") }}'
     config:
       tags: ['dominio_productos']
       meta:
@@ -134,7 +134,7 @@ models:
         description: "Coste de suministro del proveedor más caro."
 
   - name: dim_fecha
-    description: "Dimensión de calendario con un día por fila, de 1992-01-01 a 1998-12-31 (2.557 días). No procede del origen: se genera en dbt. La tabla de hechos la usa en tres papeles (pedido, envío y recepción): es una dimensión de rol. Tabla con carga total."
+    description: '{{ doc("dim_fecha") }}'
     config:
       tags: ['dominio_fechas']
       meta:
@@ -177,7 +177,7 @@ models:
         description: "Verdadero si el día es sábado o domingo."
 
   - name: fct_ventas
-    description: "Tabla de hechos de ventas, centro del modelo en estrella. Granularidad: una fila por línea de pedido (6.001.215 filas). Contiene las claves hacia las dimensiones, las dimensiones degeneradas del pedido y las medidas de negocio. Tabla con carga total."
+    description: '{{ doc("fct_ventas") }}'
     config:
       tags: ['dominio_ventas']
       meta:
@@ -277,7 +277,7 @@ models:
         description: "Verdadero si la línea llegó después de la fecha comprometida. Se cuenta para calcular el porcentaje de retrasos."
 
   - name: dim_cliente_historico
-    description: "Dimensión histórica de clientes (SCD tipo 2), construida a partir del snapshot snp_clientes. Una fila por versión de cada cliente, con su periodo de validez. Permite analizar las ventas con los atributos que tenía el cliente en el momento de la compra."
+    description: '{{ doc("dim_cliente_historico") }}'
     config:
       tags: ['dominio_clientes']
       meta:

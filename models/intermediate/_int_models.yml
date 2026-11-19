@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: int_clientes_enriquecidos
-    description: "Clientes enriquecidos con su país y su región (combinación de customer, nation y region) y con una clasificación nueva según su saldo. Es la base de dim_cliente. Vista con carga total."
+    description: '{{ doc("int_clientes_enriquecidos") }}'
     config:
       tags: ['dominio_clientes']
       meta:
@@ -51,7 +51,7 @@ models:
           - not_null
 
   - name: int_proveedores_enriquecidos
-    description: "Proveedores enriquecidos con su país y su región (combinación de supplier, nation y region) y con una clasificación nueva según su saldo. Es la base de dim_proveedor. Vista con carga total."
+    description: '{{ doc("int_proveedores_enriquecidos") }}'
     config:
       meta:
         tipo_transformacion: "combinación de entidades y campo calculado"
@@ -97,7 +97,7 @@ models:
           - not_null
 
   - name: int_lineas_pedido_enriquecidas
-    description: "Una fila por línea de pedido, combinada con los datos de su pedido y el coste de su proveedor, y con las métricas de negocio calculadas (importe neto, importe con impuestos, coste, margen) y los indicadores logísticos. Es la base de fct_ventas. Vista con carga total."
+    description: '{{ doc("int_lineas_pedido_enriquecidas") }}'
     config:
       tags: ['dominio_ventas']
       meta:
@@ -164,7 +164,7 @@ models:
         description: "Verdadero si la fecha de recepción es posterior a la fecha comprometida."
 
   - name: int_pedidos_agregados
-    description: "Una fila por pedido con el resumen de todas sus líneas: número de líneas, unidades, importes, margen, descuento medio y líneas con retraso. Cambio de granularidad de línea a pedido. Vista con carga total."
+    description: '{{ doc("int_pedidos_agregados") }}'
     config:
       tags: ['dominio_ventas']
       meta:
@@ -202,7 +202,7 @@ models:
         description: "Número de líneas del pedido entregadas con retraso."
 
   - name: int_piezas_enriquecidas
-    description: "Una fila por pieza con los datos del catálogo y el resumen de sus proveedores (número de proveedores, stock total y costes). Cambio de granularidad de pieza-proveedor a pieza. Es la base de dim_producto. Vista con carga total."
+    description: '{{ doc("int_piezas_enriquecidas") }}'
     config:
       tags: ['dominio_productos']
       meta:

@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: tpch
-    description: "Dataset TPC-H de ejemplo de Snowflake (escala 1). Simula una empresa mayorista de piezas: clientes, proveedores, catálogo, pedidos y líneas de pedido. Es de solo lectura y sus datos abarcan de 1992 a 1998."
+    description: '{{ doc("fuente_tpch") }}'
     database: SNOWFLAKE_SAMPLE_DATA
     schema: TPCH_SF1
     config:
@@ -11,7 +11,7 @@ sources:
         sistema_origen: "SNOWFLAKE_SAMPLE_DATA.TPCH_SF1"
     tables:
       - name: region
-        description: "Regiones geográficas (5 filas)."
+        description: '{{ doc("fuente_region") }}'
         columns:
           - name: r_regionkey
             description: "Identificador de la región."
@@ -21,7 +21,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: nation
-        description: "Países, cada uno asociado a una región (25 filas)."
+        description: '{{ doc("fuente_nation") }}'
         columns:
           - name: n_nationkey
             description: "Identificador del país."
@@ -33,7 +33,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: customer
-        description: "Clientes de la empresa (150.000 filas). Contiene datos personales."
+        description: '{{ doc("fuente_customer") }}'
         config:
           meta:
             contiene_pii: true
@@ -65,7 +65,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: supplier
-        description: "Proveedores de piezas (10.000 filas). Contiene datos de contacto."
+        description: '{{ doc("fuente_supplier") }}'
         config:
           meta:
             contiene_pii: true
@@ -95,7 +95,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: part
-        description: "Catálogo de piezas (200.000 filas)."
+        description: '{{ doc("fuente_part") }}'
         columns:
           - name: p_partkey
             description: "Identificador de la pieza."
@@ -117,7 +117,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: partsupp
-        description: "Relación entre piezas y proveedores, con stock y coste de suministro (800.000 filas)."
+        description: '{{ doc("fuente_partsupp") }}'
         columns:
           - name: ps_partkey
             description: "Pieza suministrada."
@@ -131,7 +131,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: orders
-        description: "Cabecera de los pedidos (1.500.000 filas)."
+        description: '{{ doc("fuente_orders") }}'
         columns:
           - name: o_orderkey
             description: "Identificador del pedido."
@@ -153,7 +153,7 @@ sources:
             description: "Comentario de texto libre."
 
       - name: lineitem
-        description: "Líneas de cada pedido (6.001.215 filas): qué pieza, de qué proveedor, cantidad, precio, descuento y fechas logísticas."
+        description: '{{ doc("fuente_lineitem") }}'
         columns:
           - name: l_orderkey
             description: "Pedido al que pertenece la línea."

@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: rpt_ventas_mensuales_region
-    description: "Informe para el área Comercial: ventas, margen, pedidos y clientes por región y mes. Una fila por región y mes (400 filas, de enero de 1992 a agosto de 1998). Vista sobre el modelo en estrella."
+    description: '{{ doc("rpt_ventas_mensuales_region") }}'
     config:
       tags: ['dominio_ventas']
       meta:
@@ -40,7 +40,7 @@ models:
         description: "Margen sobre ventas netas, en porcentaje. Puede ser negativo si se vende por debajo de coste. Calculado con la macro calcular_porcentaje."
 
   - name: rpt_rendimiento_proveedores
-    description: "Informe para Compras y Logística: ventas, margen y puntualidad de cada proveedor. Una fila por proveedor (10.000 filas). Vista sobre el modelo en estrella."
+    description: '{{ doc("rpt_rendimiento_proveedores") }}'
     config:
       meta:
         consumidor: "Área de Compras y Logística"
@@ -79,7 +79,7 @@ models:
           - porcentaje_valido
 
   - name: rpt_ventas_por_marca
-    description: "Informe para el área de Producto: ventas, margen y devoluciones por fabricante y marca. Una fila por marca (25 filas). Vista sobre el modelo en estrella."
+    description: '{{ doc("rpt_ventas_por_marca") }}'
     config:
       tags: ['dominio_productos']
       meta:

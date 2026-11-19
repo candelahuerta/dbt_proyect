@@ -1,0 +1,52 @@
+version: 2
+
+data_tests:
+  - name: assert_todos_los_pedidos_tienen_lineas
+    description: '{{ doc("assert_todos_los_pedidos_tienen_lineas") }}'
+  - name: assert_fechas_logisticas_coherentes
+    description: '{{ doc("assert_fechas_logisticas_coherentes") }}'
+  - name: assert_pedidos_agregados_cuadran_con_lineas
+    description: '{{ doc("assert_pedidos_agregados_cuadran_con_lineas") }}'
+  - name: assert_ventas_cuadran_con_origen
+    description: '{{ doc("assert_ventas_cuadran_con_origen") }}'
+  - name: assert_alerta_margen_negativo
+    description: '{{ doc("assert_alerta_margen_negativo") }}'
+  - name: assert_una_version_actual_por_cliente
+    description: '{{ doc("assert_una_version_actual_por_cliente") }}'
+  - name: assert_informes_cuadran_con_hechos
+    description: '{{ doc("assert_informes_cuadran_con_hechos") }}'
+
+macros:
+  - name: test_fecha_en_rango
+    description: '{{ doc("test_fecha_en_rango") }}'
+    arguments:
+      - name: model
+        type: relation
+        description: "Modelo sobre el que se aplica el test. Lo rellena dbt."
+      - name: column_name
+        type: string
+        description: "Columna de fecha que se comprueba. La rellena dbt."
+      - name: fecha_minima
+        type: string
+        description: "Fecha mínima permitida, en formato AAAA-MM-DD."
+      - name: fecha_maxima
+        type: string
+        description: "Fecha máxima permitida, en formato AAAA-MM-DD."
+  - name: test_no_negativo
+    description: '{{ doc("test_no_negativo") }}'
+    arguments:
+      - name: model
+        type: relation
+        description: "Modelo sobre el que se aplica el test. Lo rellena dbt."
+      - name: column_name
+        type: string
+        description: "Columna numérica que se comprueba. La rellena dbt."
+  - name: test_porcentaje_valido
+    description: '{{ doc("test_porcentaje_valido") }}'
+    arguments:
+      - name: model
+        type: relation
+        description: "Modelo sobre el que se aplica el test. Lo rellena dbt."
+      - name: column_name
+        type: string
+        description: "Columna de porcentaje que se comprueba. La rellena dbt."

@@ -1,7 +1,7 @@
 snapshots:
 
   - name: snp_clientes
-    description: "Historial de cambios de los clientes (SCD tipo 2). Guarda cada versión de los atributos que pueden cambiar con el tiempo. No vigila el saldo, porque cambia a diario y no es una dimensión de variación lenta."
+    description: '{{ doc("snp_clientes") }}'
     relation: ref('stg_tpch__customer')
     config:
       schema: snapshots
@@ -59,7 +59,7 @@ snapshots:
         description: "Fin de validez de la versión. Vacío en la versión actual."
 
   - name: snp_productos
-    description: "Historial de cambios del catálogo de productos (SCD tipo 2): nombre, precio, marca, tipo, tamaño y envase."
+    description: '{{ doc("snp_productos") }}'
     relation: ref('stg_tpch__part')
     config:
       schema: snapshots
@@ -111,7 +111,7 @@ snapshots:
         description: "Fin de validez de la versión. Vacío en la versión actual."
 
   - name: snp_proveedores
-    description: "Historial de cambios de los proveedores (SCD tipo 2): nombre, dirección y teléfono. No vigila el saldo, porque cambia a diario."
+    description: '{{ doc("snp_proveedores") }}'
     relation: ref('stg_tpch__supplier')
     config:
       schema: snapshots
