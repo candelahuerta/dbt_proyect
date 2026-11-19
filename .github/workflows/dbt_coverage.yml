@@ -1,0 +1,91 @@
+name: Cobertura de documentación (dbt coverage)
+
+# Se ejecuta cada vez que se actualiza main y, además, a mano desde la pestaña Actions
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  cobertura-documentacion:
+    runs-on: ubuntu-latest
+
+    env:
+      DBT_ACCESS_URL: ${{ secrets.DBT_ACCESS_URL }}
+      DBT_ACCOUNT_ID: ${{ secrets.DBT_ACCOUNT_ID }}
+      DBT_DOCS_JOB_ID: ${{ secrets.DBT_DOCS_JOB_ID }}
+      DBT_API_TOKEN: ${{ secrets.DBT_API_TOKEN }}
+
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Lanzar el job de documentación en dbt Cloud
+        id: lanzar
+        run: |
+          URL="${DBT_ACCESS_URL%/}/api/v2/accounts/${DBT_ACCOUNT_ID}"
+          RESPUESTA=$(curl -sS -f -X POST "$URL/jobs/${DBT_DOCS_JOB_ID}/run/" \
+            -H "Authorization: Token ${DBT_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"cause": "Lanzado por GitHub Actions para calcular la cobertura de documentación"}')
+          RUN_ID=$(echo "$RESPUESTA" | jq -r '.data.id')
+          echo "Ejecución lanzada en dbt Cloud: $RUN_ID"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Esperar a que termine
+        run: |
+          URL="${DBT_ACCESS_URL%/}/api/v2/accounts/${DBT_ACCOUNT_ID}"
+          RUN_ID="${{ steps.lanzar.outputs.run_id }}"
+          for intento in $(seq 1 60); do
+            DATOS=$(curl -sS -f "$URL/runs/$RUN_ID/" -H "Authorization: Token ${DBT_API_TOKEN}")
+            ESTADO=$(echo "$DATOS" | jq -r '.data.status_humanized')
+            COMPLETADO=$(echo "$DATOS" | jq -r '.data.is_complete')
+            echo "Estado: $ESTADO"
+            if [ "$COMPLETADO" = "true" ]; then
+              if [ "$(echo "$DATOS" | jq -r '.data.status')" != "10" ]; then
+                echo "El job de documentación ha terminado con estado: $ESTADO"
+                exit 1
+              fi
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "El job de documentación no ha terminado en 15 minutos"
+          exit 1
+
+      - name: Descargar manifest.json y catalog.json
+        run: |
+          URL="${DBT_ACCESS_URL%/}/api/v2/accounts/${DBT_ACCOUNT_ID}"
+          RUN_ID="${{ steps.lanzar.outputs.run_id }}"
+          mkdir -p target
+          for archivo in manifest.json catalog.json; do
+            curl -sS -f "$URL/runs/$RUN_ID/artifacts/$archivo" \
+              -H "Authorization: Token ${DBT_API_TOKEN}" -o "target/$archivo"
+            echo "Descargado $archivo"
+          done
+
+      - name: Instalar dbt-coverage
+        run: pip install dbt-coverage
+
+      - name: Calcular la cobertura de documentación
+        run: |
+          dbt-coverage compute doc \
+            --cov-report coverage-doc.json \
+            --output-format markdown | tee informe.md
+          {
+            echo "## Cobertura de documentación"
+            echo
+            cat informe.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Exigir el 100 % de documentación
+        run: dbt-coverage compute doc --cov-fail-under 1.0 --cov-report coverage-doc.json
+
+      - name: Guardar el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-cobertura-documentacion
+          path: |
+            coverage-doc.json
+            informe.md
