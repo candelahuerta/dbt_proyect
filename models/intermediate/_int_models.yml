@@ -2,78 +2,241 @@ version: 2
 
 models:
   - name: int_clientes_enriquecidos
-    description: "Clientes con su nación y región, y clasificación según su saldo."
+    description: "Clientes enriquecidos con su país y su región (combinación de customer, nation y region) y con una clasificación nueva según su saldo. Es la base de dim_cliente. Vista con carga total."
     config:
       tags: ['dominio_clientes']
+      meta:
+        tipo_transformacion: "combinación de entidades y campo calculado"
+        contiene_pii: true
     columns:
       - name: id_cliente
+        description: "Identificador del cliente en el sistema origen."
         data_tests:
           - unique
           - not_null
-      - name: nombre_region
-        data_tests:
-          - not_null
+      - name: nombre_cliente
+        description: "Nombre del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: direccion_cliente
+        description: "Dirección postal del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: telefono_cliente
+        description: "Teléfono de contacto del cliente. Dato personal."
+        config:
+          meta:
+            pii: true
+      - name: segmento_mercado
+        description: "Segmento de mercado al que pertenece el cliente."
+      - name: saldo_cuenta_cliente
+        description: "Saldo de la cuenta del cliente. Puede ser negativo."
       - name: situacion_saldo
-        description: "Deudor si el saldo es negativo; Solvente en caso contrario."
+        description: "Campo calculado: Deudor si el saldo es negativo; Solvente en caso contrario (incluido el saldo cero)."
         data_tests:
           - accepted_values:
               arguments:
                 values: ['Deudor', 'Solvente']
+      - name: id_nacion
+        description: "Identificador del país del cliente."
+      - name: nombre_nacion
+        description: "Nombre del país del cliente, obtenido de stg_tpch__nation."
+      - name: id_region
+        description: "Identificador de la región del cliente."
+      - name: nombre_region
+        description: "Nombre de la región del cliente, obtenido de stg_tpch__region."
+        data_tests:
+          - not_null
 
   - name: int_proveedores_enriquecidos
-    description: "Proveedores con su nación y región, y clasificación según su saldo."
+    description: "Proveedores enriquecidos con su país y su región (combinación de supplier, nation y region) y con una clasificación nueva según su saldo. Es la base de dim_proveedor. Vista con carga total."
+    config:
+      meta:
+        tipo_transformacion: "combinación de entidades y campo calculado"
+        contiene_pii: true
     columns:
       - name: id_proveedor
+        description: "Identificador del proveedor en el sistema origen."
         data_tests:
           - unique
           - not_null
-      - name: nombre_region
-        data_tests:
-          - not_null
+      - name: nombre_proveedor
+        description: "Nombre del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: direccion_proveedor
+        description: "Dirección postal del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: telefono_proveedor
+        description: "Teléfono de contacto del proveedor."
+        config:
+          meta:
+            pii: true
+      - name: saldo_cuenta_proveedor
+        description: "Saldo de la cuenta del proveedor. Puede ser negativo."
       - name: situacion_saldo
+        description: "Campo calculado: Deudor si el saldo es negativo; Solvente en caso contrario."
         data_tests:
           - accepted_values:
               arguments:
                 values: ['Deudor', 'Solvente']
+      - name: id_nacion
+        description: "Identificador del país del proveedor."
+      - name: nombre_nacion
+        description: "Nombre del país del proveedor."
+      - name: id_region
+        description: "Identificador de la región del proveedor."
+      - name: nombre_region
+        description: "Nombre de la región del proveedor."
+        data_tests:
+          - not_null
 
   - name: int_lineas_pedido_enriquecidas
-    description: "Líneas de pedido con datos del pedido, coste de suministro y métricas calculadas (importe neto, margen, días de entrega)."
+    description: "Una fila por línea de pedido, combinada con los datos de su pedido y el coste de su proveedor, y con las métricas de negocio calculadas (importe neto, importe con impuestos, coste, margen) y los indicadores logísticos. Es la base de fct_ventas. Vista con carga total."
     config:
       tags: ['dominio_ventas']
+      meta:
+        tipo_transformacion: "combinación de entidades y campos calculados"
+        granularidad: "una fila por línea de pedido"
     columns:
       - name: id_pedido
+        description: "Pedido al que pertenece la línea."
         data_tests:
           - not_null
+      - name: numero_linea
+        description: "Número de la línea dentro del pedido."
+      - name: id_pieza
+        description: "Pieza vendida."
+      - name: id_proveedor
+        description: "Proveedor que suministra la pieza."
       - name: id_cliente
+        description: "Cliente que hizo el pedido, obtenido de stg_tpch__orders."
         data_tests:
           - not_null
+      - name: fecha_pedido
+        description: "Fecha del pedido."
+      - name: estado_pedido
+        description: "Estado del pedido: F (completado), O (abierto), P (parcial)."
+      - name: prioridad_pedido
+        description: "Prioridad asignada al pedido."
+      - name: fecha_envio
+        description: "Fecha de envío de la línea."
+      - name: fecha_compromiso
+        description: "Fecha de entrega comprometida con el cliente."
+      - name: fecha_recepcion
+        description: "Fecha en que el cliente recibe la línea."
+      - name: modo_envio
+        description: "Medio de transporte utilizado."
+      - name: indicador_devolucion
+        description: "R (devuelta), A (aceptada), N (sin incidencia)."
+      - name: estado_linea
+        description: "Estado de la línea: F (cerrada) u O (abierta)."
+      - name: cantidad
+        description: "Unidades vendidas."
+      - name: precio_bruto
+        description: "Precio de la línea antes de descuento e impuestos."
+      - name: descuento
+        description: "Descuento aplicado, en tanto por uno."
+      - name: impuesto
+        description: "Impuesto aplicado, en tanto por uno."
       - name: coste_suministro
-        description: "Coste unitario del proveedor. Si fuera nulo, el join con partsupp habría fallado."
+        description: "Coste unitario del proveedor para esa pieza. Si fuera nulo, el join con partsupp habría fallado."
         data_tests:
           - not_null
+      - name: importe_neto
+        description: '{{ doc("importe_neto") }}'
+      - name: importe_con_impuestos
+        description: "Importe neto más el impuesto: precio bruto × (1 − descuento) × (1 + impuesto), redondeado a 2 decimales."
+      - name: coste_total
+        description: "Lo que cuesta a la empresa comprar las piezas de la línea: cantidad × coste de suministro."
+      - name: margen
+        description: '{{ doc("margen") }}'
+      - name: dias_hasta_envio
+        description: "Días entre la fecha del pedido y la de envío."
+      - name: dias_de_transito
+        description: "Días entre la fecha de envío y la de recepción."
+      - name: entregado_con_retraso
+        description: "Verdadero si la fecha de recepción es posterior a la fecha comprometida."
 
   - name: int_pedidos_agregados
-    description: "Una fila por pedido, con el resumen de sus líneas. Cambio de granularidad."
+    description: "Una fila por pedido con el resumen de todas sus líneas: número de líneas, unidades, importes, margen, descuento medio y líneas con retraso. Cambio de granularidad de línea a pedido. Vista con carga total."
     config:
       tags: ['dominio_ventas']
+      meta:
+        tipo_transformacion: "cambio de granularidad"
+        granularidad: "una fila por pedido"
     columns:
       - name: id_pedido
+        description: "Identificador del pedido."
         data_tests:
           - unique
           - not_null
+      - name: id_cliente
+        description: "Cliente que hizo el pedido."
+      - name: fecha_pedido
+        description: "Fecha del pedido."
+      - name: estado_pedido
+        description: "Estado del pedido."
+      - name: prioridad_pedido
+        description: "Prioridad del pedido."
       - name: numero_lineas
+        description: "Número de líneas que tiene el pedido."
         data_tests:
           - not_null
+      - name: cantidad_total
+        description: "Suma de las unidades de todas las líneas del pedido."
+      - name: importe_neto_total
+        description: "Suma del importe neto de todas las líneas del pedido."
+      - name: importe_con_impuestos_total
+        description: "Suma del importe con impuestos de todas las líneas del pedido."
+      - name: margen_total
+        description: "Suma del margen de todas las líneas del pedido."
+      - name: descuento_medio
+        description: "Media del descuento de las líneas del pedido, en tanto por uno."
+      - name: lineas_con_retraso
+        description: "Número de líneas del pedido entregadas con retraso."
 
   - name: int_piezas_enriquecidas
-    description: "Una fila por pieza, con el resumen de sus proveedores. Cambio de granularidad."
+    description: "Una fila por pieza con los datos del catálogo y el resumen de sus proveedores (número de proveedores, stock total y costes). Cambio de granularidad de pieza-proveedor a pieza. Es la base de dim_producto. Vista con carga total."
     config:
       tags: ['dominio_productos']
+      meta:
+        tipo_transformacion: "cambio de granularidad y combinación de entidades"
+        granularidad: "una fila por pieza"
     columns:
       - name: id_pieza
+        description: "Identificador de la pieza."
         data_tests:
           - unique
           - not_null
+      - name: nombre_pieza
+        description: "Nombre descriptivo de la pieza."
+      - name: fabricante
+        description: "Fabricante de la pieza."
+      - name: marca
+        description: "Marca de la pieza."
+      - name: tipo_pieza
+        description: "Tipo de pieza."
+      - name: tamano_pieza
+        description: "Tamaño de la pieza."
+      - name: tipo_envase
+        description: "Tipo de envase."
+      - name: precio_venta_publico
+        description: "Precio de venta al público."
       - name: numero_proveedores
+        description: "Número de proveedores distintos que suministran la pieza (en TPCH siempre son 4)."
         data_tests:
           - not_null
+      - name: stock_total
+        description: "Suma del stock disponible de la pieza entre todos sus proveedores."
+      - name: coste_suministro_medio
+        description: "Coste medio de suministro entre sus proveedores, redondeado a 2 decimales."
+      - name: coste_suministro_minimo
+        description: "Coste de suministro del proveedor más barato."
+      - name: coste_suministro_maximo
+        description: "Coste de suministro del proveedor más caro."
