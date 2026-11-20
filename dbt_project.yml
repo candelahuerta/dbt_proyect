@@ -78,6 +78,8 @@ models:
         propietario: "Unidades de negocio"
       +grants:
         select: ['ROL_ANALISTA', 'ROL_NEGOCIO']
+  elementary:
+    +schema: elementary
   dbt_project_evaluator:
     +schema: evaluador
 
@@ -95,3 +97,10 @@ data_tests:
       +tags: ['tests_reporting']
   dbt_project_evaluator:
     +severity: warn
+
+#para que el elementary no haga nada en el CI
+vars:
+  disable_run_results: "{{ target.schema.lower().startswith('dbt_cloud_pr_') }}"
+  disable_tests_results: "{{ target.schema.lower().startswith('dbt_cloud_pr_') }}"
+  disable_dbt_artifacts_autoupload: "{{ target.schema.lower().startswith('dbt_cloud_pr_') }}"
+  disable_dbt_invocation_autoupload: "{{ target.schema.lower().startswith('dbt_cloud_pr_') }}"
