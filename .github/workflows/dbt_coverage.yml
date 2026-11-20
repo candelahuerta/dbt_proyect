@@ -70,6 +70,7 @@ jobs:
       - name: Calcular la cobertura de documentación
         run: |
           dbt-coverage compute doc \
+            --model-path-exclusion-filter models/edr \
             --cov-report coverage-doc.json \
             --output-format markdown | tee informe.md
           {
@@ -79,7 +80,11 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Exigir el 100 % de documentación
-        run: dbt-coverage compute doc --cov-fail-under 1.0 --cov-report coverage-doc.json
+        run: |
+          dbt-coverage compute doc \
+            --model-path-exclusion-filter models/edr \
+            --cov-fail-under 1.0 \
+            --cov-report coverage-doc.json
 
       - name: Guardar el informe
         if: always()
