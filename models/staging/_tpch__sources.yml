@@ -132,6 +132,11 @@ sources:
 
       - name: orders
         description: '{{ doc("fuente_orders") }}'
+        config:
+          loaded_at_field: "dateadd(day, datediff(day, '1998-08-02'::date, current_date) - 1, o_orderdate)::timestamp"
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: o_orderkey
             description: "Identificador del pedido."
@@ -154,6 +159,11 @@ sources:
 
       - name: lineitem
         description: '{{ doc("fuente_lineitem") }}'
+        config:
+          loaded_at_field: "dateadd(day, datediff(day, '1998-12-01'::date, current_date) - 1, l_shipdate)::timestamp"
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: l_orderkey
             description: "Pedido al que pertenece la línea."
